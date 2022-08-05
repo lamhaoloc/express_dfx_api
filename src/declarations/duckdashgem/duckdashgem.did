@@ -1,0 +1,5 @@
+service : {
+  addGem: (text, nat) -> (nat);
+  getGemWallet: (text) -> (nat);
+  initGemWallet: (text) -> ();
+}

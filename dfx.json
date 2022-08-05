@@ -3,19 +3,6 @@
     "duckdashgem": {
       "main": "src/duckdashgem/main.mo",
       "type": "motoko"
-    },
-    "duckdashgem_assets": {
-      "dependencies": [
-        "duckdashgem"
-      ],
-      "frontend": {
-        "entrypoint": "src/duckdashgem_assets/src/index.html"
-      },
-      "source": [
-        "src/duckdashgem_assets/assets",
-        "dist/duckdashgem_assets/"
-      ],
-      "type": "assets"
     }
   },
   "defaults": {
