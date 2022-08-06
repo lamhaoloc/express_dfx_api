@@ -1,9 +1,12 @@
+import 'isomorphic-fetch';
+import 'dotenv/config';
+
 import express from 'express';
 import bodyParser from 'body-parser';
-import 'isomorphic-fetch';
+
 import { HttpAgent, Actor } from '@dfinity/agent';
 import { IDL } from '@dfinity/candid';
-import 'dotenv/config';
+import { idlFactory } from './.dfx/local/canisters/duckdashgem/duckdashgem.did.js';
 
 const app = express();
 const API_PORT = process.env.API_PORT;
@@ -22,7 +25,6 @@ const agent = new HttpAgent({
 agent.fetchRootKey();
 global.ic = { agent, HttpAgent, IDL };
 
-import { idlFactory } from './.dfx/local/canisters/duckdashgem/duckdashgem.did.js';
 const actor = Actor.createActor(idlFactory, {
   canisterId: process.env.DUCKDASHGEM_CANISTER_ID,
 });
@@ -71,12 +73,31 @@ app.get('/api/wallet', async (req, res, next) => {
   }
 });
 
-app.use((_error, _request, response, _next) => {
-  console.error(error.stack || error);
+app.post('/api/transfer', async (req, res, next) => {
+  try {
+    const fromUserID = req.body.fromUserID || '';
+    const toUserID = req.body.toUserID || '';
+    const amount = req.body.amount || 0;
+
+    const currentGem = await actor.transferGem(fromUserID, toUserID, amount);
+
+    res.json({
+      success: true,
+      data: {
+        currentGem,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.use((error, _request, response, _next) => {
+  const errorMessage = error.message.split("Reject text: ")[1];
 
   response.status(400).json({
     success: false,
-    message: 'Unexpected error!',
+    message: errorMessage,
   });
 });
 

@@ -1,3 +1,4 @@
+import Error "mo:base/Error";
 import Map "mo:base/HashMap";
 import Text "mo:base/Text";
 
@@ -37,4 +38,32 @@ actor Gem {
       };
     }
   };
+
+  public func transferGem(from : Text, to: Text, amount: Nat) : async Nat {
+    switch (gemWalletMap.get(to)) {
+      case (?target_user_gem) {
+        switch (gemWalletMap.get(from)) {
+          case (?current_gem) {
+            if(current_gem < amount) {
+              throw Error.reject("Not enough gem to transfer!");
+            };
+
+            var from_user_gem = current_gem - amount;
+            var to_user_gem = target_user_gem + amount;
+
+            gemWalletMap.put(from, from_user_gem);
+            gemWalletMap.put(to, to_user_gem);
+
+            return from_user_gem;
+          };
+          case null {
+            throw Error.reject("Not found user with id: " # from);
+          }
+        }
+      };
+      case null {
+        throw Error.reject("Not found user with id: " # to);
+      }
+    }
+  }
 };
